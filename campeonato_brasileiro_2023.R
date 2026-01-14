@@ -74,7 +74,7 @@ base_final <- sub_base3 |>
 
 rm(sub_base1, sub_base2)
 
-write_xlsx(base_final, "base_brasileiro.xlsx")
+#write_xlsx(base_final, "base_brasileiro.xlsx")
 
 
 
@@ -120,8 +120,8 @@ ggplot(br_2023_g6, aes(x = rodada_cronologica, y = pontos_acumulados_cronologico
   
   # ESCALAS DOS EIXOS
   scale_x_continuous(
-    breaks = seq(0, max(br_2023_cima$rodada_cronologica, na.rm = TRUE), by = 4),
-    limits = c(0, max(br_2023_cima$rodada_cronologica, na.rm = TRUE))
+    breaks = seq(0, max(br_2023_g6$rodada_cronologica, na.rm = TRUE), by = 4),
+    limits = c(0, max(br_2023_g6$rodada_cronologica, na.rm = TRUE))
   ) +
   scale_y_continuous(
     breaks = seq(0, 72, by = 8),
@@ -226,9 +226,8 @@ ggplot(br_2023_z6, aes(x = rodada_cronologica, y = pontos_acumulados_cronologico
                        color = time_referencia)) +
   # Linha step
   geom_step(linewidth = 1) +
-  # Pontos com símbolos PREENCHIDOS
   geom_point(aes(shape = resultado_referencia), 
-             size = 2, data = ~ filter(., rodada_cronologica > 0)) +  # size maior para melhor visualização
+             size = 2, data = ~ filter(., rodada_cronologica > 0)) +  
   # # Escala de cores para os times
   scale_color_manual(values = cores_times, name = "Time") +
   # # Escala de shapes PREENCHIDOS
@@ -242,8 +241,8 @@ ggplot(br_2023_z6, aes(x = rodada_cronologica, y = pontos_acumulados_cronologico
   
   # ESCALAS DOS EIXOS
   scale_x_continuous(
-    breaks = seq(0, max(br_2023_cima$rodada_cronologica, na.rm = TRUE), by = 4),
-    limits = c(0, max(br_2023_cima$rodada_cronologica, na.rm = TRUE))
+    breaks = seq(0, max(br_2023_z6$rodada_cronologica, na.rm = TRUE), by = 4),
+    limits = c(0, max(br_2023_z6$rodada_cronologica, na.rm = TRUE))
   ) +
   scale_y_continuous(
     breaks = seq(0, 48, by = 8),
@@ -267,299 +266,13 @@ ggplot(br_2023_z6, aes(x = rodada_cronologica, y = pontos_acumulados_cronologico
 
 
 
-
-
-
-# Extra ----
-
-
-# Criar dados para a linha de referência
-linha_referencia <- data.frame(
-  x = c(0, 38),
-  y = c(0, 70)
-)
-
-# Gráfico com a linha de referência
-ggplot(br_2023, aes(x = rodada, y = pontos_acumulados, 
-                  color = time_referencia)) +
-  # Linhas dos times
-  geom_line(linewidth = 1, alpha = 0.7) +
-  geom_point(size = 1.5) +
-  # Linha de referência (0,0) a (38,70)
-  geom_line(data = linha_referencia, 
-            aes(x = x, y = y),
-            color = "black", 
-            linewidth = 1.2,
-            linetype = "dashed",
-            alpha = 0.5) +
-  # Ponto no final da linha de referência
-  geom_point(data = linha_referencia %>% filter(x == 38),
-             aes(x = x, y = y),
-             color = "black",
-             size = 3,
-             shape = 21,
-             fill = "white",
-             stroke = 1.5) +
-  # Rótulo para o ponto (38,70)
-  geom_text(data = linha_referencia %>% filter(x == 38),
-            aes(x = x, y = y, label = "70 pontos"),
-            color = "black",
-            hjust = -0.2,
-            vjust = 0.5,
-            size = 4,
-            fontface = "bold") +
-  labs(title = "Evolução dos Pontos Acumulados por Rodada",
-       subtitle = "Linha tracejada: meta de 70 pontos ao final do campeonato",
-       x = "Rodada",
-       y = "Pontos Acumulados",
-       color = "Time") +
-  theme_minimal() 
-
-
-# Criar dados para as linhas de referência
-linhas_referencia <- data.frame(
-  meta = rep(c("70 pontos", "60 pontos", "45 pontos"), each = 2),
-  x = c(0, 38, 0, 38, 0, 38),
-  y = c(0, 70, 0, 60, 0, 45)
-)
-
-# Definir cores para cada meta
-cores_metas <- c("70 pontos" = "#FF6B6B",   # Vermelho
-                 "60 pontos" = "#4ECDC4",    # Turquesa
-                 "45 pontos" = "#FFD166")    # Amarelo
-
-# Criar um gráfico com legendas separadas para times e metas
-ggplot(br_2023, aes(x = rodada_cronologica, y = pontos_acumulados_cronologico)) +
-  # 1. Linhas dos times (primeira camada)
-  geom_line(aes(group = time_referencia, color = time_referencia),
-            linewidth = 1, alpha = 0.7) +
-  geom_point(aes(color = time_referencia), size = 1.5) +
-  
-  # 2. Linhas de referência (segunda camada)
-  geom_line(data = data.frame(x = rep(c(0, 38), 3),
-                              y = c(0, 70, 0, 60, 0, 45),
-                              meta = rep(c("70 pts", "60 pts", "45 pts"), each = 2)),
-            aes(x = x, y = y, linetype = meta, color = meta),
-            linewidth = 1.2) +
-  
-  # 3. Marcadores nas rodadas específicas
-  # Linha horizontal na rodada 38 para marcar os limiares
-  geom_segment(data = data.frame(y = c(45, 60, 70)),
-               aes(x = 36, xend = 38, y = y, yend = y, color = as.character(y)),
-               linetype = "solid",
-               linewidth = 0.8) +
-  
-  # 4. Rótulos das metas
-  annotate("text", x = 39, y = 45, 
-           label = "45 pts\nSegurança", 
-           hjust = 0, vjust = 0.5, size = 3.5,
-           fontface = "bold", lineheight = 0.9, color = "#FFD166") +
-  annotate("text", x = 39, y = 60, 
-           label = "60 pts\nSul-Americana", 
-           hjust = 0, vjust = 0.5, size = 3.5,
-           fontface = "bold", lineheight = 0.9, color = "#4ECDC4") +
-  annotate("text", x = 39, y = 70, 
-           label = "70 pts\nLibertadores", 
-           hjust = 0, vjust = 0.5, size = 3.5,
-           fontface = "bold", lineheight = 0.9, color = "#FF6B6B") +
-  
-  # 5. Configurações estéticas
-  labs(title = "Evolução dos Pontos Acumulados - Brasileirão 2023",
-       subtitle = "Linhas de referência: metas comuns no campeonato brasileiro",
-       x = "Rodada",
-       y = "Pontos Acumulados",
-       color = "Times") +
-  theme_minimal() +
-  scale_x_continuous(limits = c(0, 42), breaks = seq(0, 38, 5)) +
-  scale_y_continuous(limits = c(0, max(br_2023$pontos_acumulados, 70) * 1.1)) +
-  scale_color_manual(
-    name = "Times",
-    values = c(setNames(rainbow(length(unique(br_2023$time_referencia))),
-                        unique(br_2023$time_referencia)),
-               "45 pts" = "#FFD166",
-               "60 pts" = "#4ECDC4",
-               "70 pts" = "#FF6B6B")
-  ) +
-  scale_linetype_manual(
-    name = "Metas",
-    values = c("45 pts" = "dashed",
-               "60 pts" = "dashed",
-               "70 pts" = "dashed")
-  ) +
-  guides(
-    color = guide_legend(order = 1, override.aes = list(linetype = "solid")),
-    linetype = guide_legend(order = 2)
-  ) +
-  theme(legend.position = "right",
-        legend.box = "vertical",
-        legend.spacing.y = unit(0.5, "cm"))
-
-
-# Interativo
-
-# Criar cores para os times
-cores_times <- setNames(
-  viridis::viridis(length(unique(br_2023$time_referencia))),
-  unique(br_2023$time_referencia)
-)
-
-# Iniciar gráfico vazio
-p_interativo2 <- plot_ly() %>%
-  layout(
-    title = list(
-      text = "<b>Evolução dos Pontos Acumulados - Brasileirão 2023</b><br>
-      <sup>Linhas de referência: metas comuns no campeonato brasileiro</sup>",
-      x = 0.05
-    ),
-    xaxis = list(
-      title = "Rodada",
-      range = c(0, 42),
-      dtick = 5,
-      gridcolor = "lightgray"
-    ),
-    yaxis = list(
-      title = "Pontos Acumulados",
-      range = c(0, max(br_2023$pontos_acumulados, 70) * 1.1),
-      gridcolor = "lightgray"
-    ),
-    hovermode = "closest",
-    showlegend = TRUE,
-    legend = list(
-      orientation = "v",
-      y = 0.9,
-      x = 1.05,
-      title = list(text = "<b>Times</b>")
-    )
-  )
-
-# Adicionar linhas de cada time
-for(time in unique(br_2023$time_referencia)) {
-  dados_time <- br_2023 %>% filter(time_referencia == time)
-  
-  p_interativo2 <- p_interativo2 %>%
-    add_trace(
-      data = dados_time,
-      x = ~rodada,
-      y = ~pontos_acumulados,
-      type = "scatter",
-      mode = "lines+markers",
-      name = time,
-      line = list(color = cores_times[time], width = 2),
-      marker = list(color = cores_times[time], size = 4),
-      hoverinfo = "text",
-      text = ~paste(
-        "<b>", time, "</b><br>",
-        "Rodada: ", rodada, "<br>",
-        "Pontos acumulados: ", pontos_acumulados, "<br>",
-        "Pontos na rodada: ", pontos_rodada
-      ),
-      legendgroup = "times"
-    )
-}
-
-# Adicionar linhas de meta
-metas <- list(
-  list(pontos = 70, cor = "#FF6B6B", nome = "70 pts - Libertadores"),
-  list(pontos = 60, cor = "#4ECDC4", nome = "60 pts - Sul-Americana"),
-  list(pontos = 45, cor = "#FFD166", nome = "45 pts - Segurança")
-)
-
-for(meta in metas) {
-  p_interativo2 <- p_interativo2 %>%
-    add_trace(
-      x = c(0, 38),
-      y = c(0, meta$pontos),
-      type = "scatter",
-      mode = "lines",
-      name = meta$nome,
-      line = list(color = meta$cor, width = 2, dash = "dash"),
-      hoverinfo = "text",
-      text = paste0(
-        "<b>", meta$nome, "</b><br>",
-        "Meta: ", meta$pontos, " pontos na 38ª rodada<br>",
-        "Ritmo necessário: ", round(meta$pontos/38, 2), " pontos/rodada"
-      ),
-      legendgroup = "metas",
-      showlegend = TRUE
-    )
-}
-
-# Adicionar anotações para as metas
-p_interativo2 <- p_interativo2 %>%
-  add_annotations(
-    x = 39,
-    y = 45,
-    text = "45 pts<br><i>Segurança</i>",
-    xref = "x",
-    yref = "y",
-    showarrow = FALSE,
-    font = list(size = 11, color = "#FFD166"),
-    align = "left"
-  ) %>%
-  add_annotations(
-    x = 39,
-    y = 60,
-    text = "60 pts<br><i>Sul-Americana</i>",
-    xref = "x",
-    yref = "y",
-    showarrow = FALSE,
-    font = list(size = 11, color = "#4ECDC4"),
-    align = "left"
-  ) %>%
-  add_annotations(
-    x = 39,
-    y = 70,
-    text = "70 pts<br><i>Libertadores</i>",
-    xref = "x",
-    yref = "y",
-    showarrow = FALSE,
-    font = list(size = 11, color = "#FF6B6B"),
-    align = "left"
-  )
-
-# Adicionar botões de interação
-p_interativo2 <- p_interativo2 %>%
-  layout(
-    updatemenus = list(
-      list(
-        type = "buttons",
-        direction = "down",
-        x = 1.15,
-        y = 0.2,
-        buttons = list(
-          list(
-            method = "relayout",
-            args = list(list(showlegend = TRUE)),
-            label = "Mostrar tudo"
-          ),
-          list(
-            method = "restyle",
-            args = list("visible", "legendonly"),
-            args2 = list("visible", TRUE),
-            label = "Apenas times"
-          ),
-          list(
-            method = "restyle",
-            args = list("visible", "legendonly"),
-            args2 = list("visible", TRUE),
-            label = "Apenas metas"
-          )
-        )
-      )
-    )
-  )
-
-# Mostrar gráfico
-p_interativo2
-
-
-
 # Shiny ----
 
-br_2023 = base_final |> filter(ano_campeonato == 2023, time_referencia %in% c("Botafogo", 'Palmeiras') )
+br_2023 <- base_final |> 
+  filter(ano_campeonato == 2023)
 
 ui <- fluidPage(
-  titlePanel("Pontos Acumulados - Brasileirão 2023"),
+  titlePanel("Pontuação - Brasileirão 2023"),
   sidebarLayout(
     sidebarPanel(
       width = 3,
@@ -569,16 +282,15 @@ ui <- fluidPage(
         inputId = "times_selecionados",
         label = "Selecionar Times:",
         choices = unique(br_2023$time_referencia),
-        selected = unique(br_2023$time_referencia)[1:4]  # Mostrar 4 times inicialmente
+        selected = character(0)  # Inicia sem seleção
       ),
       # Botões de ação rápida
       actionButton("todos_times", "Todos os Times", width = "100%"),
-      actionButton("top4", "Top 4", width = "100%"),
       actionButton("limpar", "Limpar Seleção", width = "100%"),
       hr(),
       # Opções de visualização
-      checkboxInput("mostrar_metas", "Mostrar Metas", value = TRUE),
       checkboxInput("mostrar_pontos", "Mostrar Pontos", value = TRUE),
+      checkboxInput("mostrar_metas", "Mostrar Metas (45/60/70 pts)", value = FALSE),
       sliderInput("rodada_range", "Rodadas:",
                   min = 1, max = 38, value = c(1, 38)),
       hr(),
@@ -605,20 +317,6 @@ server <- function(input, output, session) {
     )
   })
   
-  observeEvent(input$top4, {
-    # Encontrar os 4 times com mais pontos no final
-    top4_times <- br_2023 %>%
-      filter(rodada == 38) %>%
-      arrange(desc(pontos_acumulados)) %>%
-      head(4) %>%
-      pull(time_referencia)
-    
-    updateCheckboxGroupInput(
-      session, "times_selecionados",
-      selected = top4_times
-    )
-  })
-  
   observeEvent(input$limpar, {
     updateCheckboxGroupInput(session, "times_selecionados", selected = character(0))
   })
@@ -630,8 +328,8 @@ server <- function(input, output, session) {
     br_2023 %>%
       filter(
         time_referencia %in% input$times_selecionados,
-        rodada >= input$rodada_range[1],
-        rodada <= input$rodada_range[2]
+        rodada_cronologica >= input$rodada_range[1],
+        rodada_cronologica <= input$rodada_range[2]
       )
   })
   
@@ -639,39 +337,69 @@ server <- function(input, output, session) {
   output$grafico <- renderPlotly({
     if (length(input$times_selecionados) == 0) {
       return(plotly_empty() %>% 
-               layout(title = "Selecione pelo menos um time"))
+               layout(
+                 title = "Selecione pelo menos um time para visualizar o gráfico",
+                 plot_bgcolor = "#f5f5f5"
+               ))
     }
     
+    # Criar gráfico base
     p <- plot_ly() %>%
       layout(
-        title = paste("Pontos Acumulados -", length(input$times_selecionados), "times selecionados"),
-        xaxis = list(title = "Rodada"),
+        title = paste("Pontos Acumulados - Brasileirão 2023"),
+        xaxis = list(
+          title = "Rodada",
+          range = c(input$rodada_range[1] - 0.5, input$rodada_range[2] + 0.5)
+        ),
         yaxis = list(title = "Pontos Acumulados"),
-        hovermode = "closest"
+        hovermode = "closest",
+        showlegend = TRUE,
+        plot_bgcolor = "#f5f5f5"
       )
     
-    # Adicionar linhas dos times
+    # Adicionar linhas dos times (se habilitado)
     if (input$mostrar_pontos) {
-      for (time in unique(dados_filtrados()$time_referencia)) {
-        dados_time <- dados_filtrados() %>% filter(time_referencia == time)
+      # Paleta de cores para os times
+      cores <- scales::hue_pal()(length(unique(dados_filtrados()$time_referencia)))
+      
+      for (i in seq_along(unique(dados_filtrados()$time_referencia))) {
+        time <- unique(dados_filtrados()$time_referencia)[i]
+        dados_time <- dados_filtrados() %>% 
+          filter(time_referencia == time) %>%
+          arrange(rodada_cronologica)
+        
+        # Adicionar variável placar ao hovertext
+        hover_text <- if ("placar" %in% names(dados_time)) {
+          ~paste(
+            "<b>", time_referencia, "</b><br>",
+            "Rodada: ", rodada_cronologica, "<br>",
+            "Pontos Acumulados: ", pontos_acumulados_cronologico, "<br>",
+            "Posição: ", colocacao_referencia, "º<br>",
+            "Placar: ", placar
+          )
+        } else {
+          # Se a variável placar não existir, mostrar mensagem
+          ~paste(
+            "<b>", time_referencia, "</b><br>",
+            "Rodada: ", rodada_cronologica, "<br>",
+            "Pontos Acumulados: ", pontos_acumulados_cronologico, "<br>",
+            "Posição: ", colocacao_referencia, "º<br>",
+            "Placar: Informação não disponível"
+          )
+        }
         
         p <- p %>%
           add_trace(
             data = dados_time,
-            x = ~rodada,
-            y = ~pontos_acumulados,
+            x = ~rodada_cronologica,
+            y = ~pontos_acumulados_cronologico,
             type = "scatter",
             mode = "lines+markers",
             name = time,
-            line = list(width = 3),
-            marker = list(size = 6),
+            line = list(width = 3, color = cores[i]),
+            marker = list(size = 6, color = cores[i]),
             hoverinfo = "text",
-            text = ~paste(
-              "<b>", time_referencia, "</b><br>",
-              "Rodada: ", rodada, "<br>",
-              "Pontos Acumulados: ", pontos_acumulados, "<br>",
-              "Posição na rodada: ", colocacao_referencia
-            )
+            text = hover_text
           )
       }
     }
@@ -680,22 +408,35 @@ server <- function(input, output, session) {
     if (input$mostrar_metas) {
       metas <- data.frame(
         pontos = c(70, 60, 45),
-        nome = c("Libertadores", "Sul-Americana", "Segurança"),
+        nome = c("Título", "Libertadores", "Fuga do Z4"),
         cor = c("#FF6B6B", "#4ECDC4", "#FFD166")
       )
       
       for(i in 1:nrow(metas)) {
+        # Calcular projeção linear ao longo das rodadas
+        x_min <- input$rodada_range[1]
+        x_max <- input$rodada_range[2]
+        y_min <- (metas$pontos[i] * x_min / 38)
+        y_max <- (metas$pontos[i] * x_max / 38)
+        
         p <- p %>%
           add_trace(
-            x = c(input$rodada_range[1], input$rodada_range[2]),
-            y = c(metas$pontos[i] * input$rodada_range[1]/38, 
-                  metas$pontos[i] * input$rodada_range[2]/38),
+            x = c(x_min, x_max),
+            y = c(y_min, y_max),
             type = "scatter",
             mode = "lines",
-            name = paste(metas$pontos[i], "pontos -", metas$nome[i]),
-            line = list(color = metas$cor[i], width = 2, dash = "dash"),
+            name = paste(metas$pontos[i], "pts -", metas$nome[i]),
+            line = list(
+              color = metas$cor[i], 
+              width = 2, 
+              dash = "dash"
+            ),
             hoverinfo = "text",
-            text = paste("<b>Meta:", metas$pontos[i], "pontos</b><br>", metas$nome[i]),
+            text = paste(
+              "<b>Meta: ", metas$pontos[i], " pontos</b><br>",
+              metas$nome[i], "<br>",
+              "Projeção linear de ", round(y_min, 1), " a ", round(y_max, 1), " pontos"
+            ),
             showlegend = TRUE
           )
       }
@@ -706,31 +447,67 @@ server <- function(input, output, session) {
   
   # Estatísticas
   output$estatisticas <- renderText({
-    if (length(input$times_selecionados) == 0) return("Nenhum time selecionado")
+    if (length(input$times_selecionados) == 0) {
+      return("Selecione times para ver estatísticas")
+    }
     
     dados_finais <- dados_filtrados() %>%
-      filter(rodada == max(rodada)) %>%
-      arrange(desc(pontos_acumulados))
+      filter(rodada_cronologica == max(rodada_cronologica)) %>%
+      arrange(desc(pontos_acumulados_cronologico))
+    
+    if (nrow(dados_finais) == 0) return("Nenhum dado disponível para o filtro selecionado")
     
     paste(
-      "Estatísticas (Rodada", max(dados_filtrados()$rodada), "):\n",
-      "1º:", dados_finais$time_referencia[1], "-", dados_finais$pontos_acumulados[1], "pts\n",
-      "Último:", dados_finais$time_referencia[nrow(dados_finais)], 
-      "-", dados_finais$pontos_acumulados[nrow(dados_finais)], "pts\n",
-      "Diferença:", dados_finais$pontos_acumulados[1] - 
-        dados_finais$pontos_acumulados[nrow(dados_finais)], "pts"
+      "=== ESTATÍSTICAS ===\n",
+      "Rodada: ", max(dados_filtrados()$rodada_cronologica), "\n",
+      "Times analisados: ", length(unique(dados_filtrados()$time_referencia)), "\n\n",
+      "TOP 1: ", dados_finais$time_referencia[1], 
+      " - ", dados_finais$pontos_acumulados_cronologico[1], " pts\n",
+      "ÚLTIMO: ", dados_finais$time_referencia[nrow(dados_finais)], 
+      " - ", dados_finais$pontos_acumulados_cronologico[nrow(dados_finais)], " pts\n",
+      "DIFERENÇA: ", 
+      dados_finais$pontos_acumulados_cronologico[1] - dados_finais$pontos_acumulados_cronologico[nrow(dados_finais)], 
+      " pts\n\n",
+      "Média de pontos: ", 
+      round(mean(dados_finais$pontos_acumulados_cronologico), 1), " pts"
     )
   })
   
-  # Tabela de dados
+  # Tabela de dados (também atualizada para incluir placar se existir)
   output$tabela_dados <- renderDataTable({
-    dados_filtrados() %>%
-      select(Rodada = rodada, Time = time_referencia, 
-             `Pontos Acumulados` = pontos_acumulados,
-             `Pontos na Rodada` = pontos_rodada,
-             Posição = colocacao_referencia)
-  })
+    if (length(input$times_selecionados) == 0) {
+      return(data.frame(Mensagem = "Selecione times para ver os dados"))
+    }
+    
+    # Verificar se a variável placar existe
+    if ("placar" %in% names(dados_filtrados())) {
+      dados_filtrados() %>%
+        select(
+          Rodada = rodada_cronologica, 
+          Time = time_referencia, 
+          `Pontos Acumulados` = pontos_acumulados_cronologico,
+          `Pontos na Rodada` = pontos_rodada,
+          Posição = colocacao_referencia,
+          Placar = placar
+        ) %>%
+        arrange(Rodada, `Posição`)
+    } else {
+      dados_filtrados() %>%
+        select(
+          Rodada = rodada_cronologica, 
+          Time = time_referencia, 
+          `Pontos Acumulados` = pontos_acumulados_cronologico,
+          `Pontos na Rodada` = pontos_rodada,
+          Posição = colocacao_referencia
+        ) %>%
+        arrange(Rodada, `Posição`)
+    }
+  }, 
+  options = list(
+    pageLength = 10,
+    lengthMenu = c(5, 10, 20, 50),
+    searchHighlight = TRUE
+  ))
 }
 
 shinyApp(ui = ui, server = server)
-
